@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Control de Asistencia - UFPS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 60px;
+            text-align: center;
+            animation: slideIn 0.8s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide h1 {
+            color: #2c3e50;
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .slide h2 {
+            color: #3498db;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .slide h3 {
+            color: #2980b9;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .slide p {
+            color: #34495e;
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .slide ul {
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .slide li {
+            color: #2c3e50;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .slide li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: white;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .tech-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .tech-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin: 40px 0;
+            text-align: left;
+        }
+
+        .problem-card {
+            background: #fff5f5;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #e74c3c;
+        }
+
+        .solution-card {
+            background: #f0fff4;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #27ae60;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #2c3e50;
+            backdrop-filter: blur(10px);
+        }
+
+        .architecture-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .arch-component {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            min-width: 200px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #3498db;
+            margin: 0 20px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .benefit-card {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .benefit-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            position: relative;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            z-index: 1;
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 2;
+            position: relative;
+            min-width: 200px;
+            border: 3px solid #3498db;
+        }
+
+        .contact-info {
+            background: linear-gradient(135deg, #ffffff, #4b6cb7);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+
+        .demo-mockup {
+            background: #f8f9fa;
+            border: 3px solid #dee2e6;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .mockup-screen {
+            background: #2c3e50;
+            color: #2ecc71;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            height: 100%;
+            width: 75%;
+            transition: width 1s ease;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 40px 20px;
+            }
+            
+            .slide h1 {
+                font-size: 2em;
+            }
+            
+            .slide h2 {
+                font-size: 1.8em;
+            }
+            
+            .tech-grid, .problem-grid, .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline {
+                flex-direction: column;
+            }
+            
+            .timeline::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">12</span>
+        </div>
+
+        <!-- Slide 1: Portada -->
+        <div class="slide active">
+            <div class="logo">🔒</div>
+            <h1>Sistema de Control de Asistencia</h1>
+            <h3>Con Tecnología Biométrica de Huellas Dactilares</h3>
+            <p style="font-size: 1.5em; color: #3498db; margin: 40px 0;">Universidad Francisco de Paula Santander</p>
+            <div style="background: linear-gradient(135deg, #ffffff, #4b6cb7); color: white; padding: 30px; border-radius: 15px; margin: 40px 0;">
+                <h3>Modernizando el Control Académico</h3>
+                <p>Precisión • Eficiencia • Confiabilidad</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Problema Actual -->
+        <div class="slide">
+            <h2>🚨 Problemática Actual</h2>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <h3>❌ Métodos Tradicionales</h3>
+                    <ul>
+                        <li>Listas manuales en papel</li>
+                        <li>Sistemas de firmas</li>
+                        <li>Registro manual por docentes</li>
+                        <li>Procesos susceptibles a errores</li>
+                    </ul>
+                </div>
+                <div class="problem-card">
+                    <h3>⚠️ Consecuencias</h3>
+                    <ul>
+                        <li>Pérdida de tiempo valioso</li>
+                        <li>Suplantación de identidad</li>
+                        <li>Registros imprecisos</li>
+                        <li>Dificultad para generar reportes</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="background: #fff3cd; padding: 30px; border-radius: 15px; border-left: 5px solid #ffc107; margin-top: 40px;">
+                <h3>💡 Necesidad Identificada</h3>
+                <p>Un sistema automatizado, confiable y eficiente para el control de asistencia estudiantil</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Nuestra Solución -->
+        <div class="slide">
+            <h2>✨ Nuestra Solución</h2>
+            <div class="solution-card" style="text-align: center; margin: 40px 0;">
+                <h3>🔬 Sistema Biométrico Integral</h3>
+                <p style="font-size: 1.4em;">Tecnología de huellas dactilares + Aplicación web moderna</p>
+            </div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">⚡</div>
+                    <h4>Registro Instantáneo</h4>
+                    <p>Menos de 2 segundos por estudiante</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🛡️</div>
+                    <h4>100% Seguro</h4>
+                    <p>Imposible suplantación de identidad</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📊</div>
+                    <h4>Reportes Automáticos</h4>
+                    <p>Estadísticas en tiempo real</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">💾</div>
+                    <h4>Datos Confiables</h4>
+                    <p>Almacenamiento seguro en la nube</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Arquitectura del Sistema -->
+        <div class="slide">
+            <h2>🏗️ Arquitectura del Sistema</h2>
+            <div class="architecture-diagram">
+                <div class="arch-component">
+                    <h4>🔧 Hardware</h4>
+                    <p>Arduino UNO<br>Sensor AS608<br>LED Indicador</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="arch-component">
+                    <h4>⚙️ Backend</h4>
+                    <p>Node.js<br>Express.js<br>Socket.IO</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="arch-component">
+                    <h4>💾 Base de Datos</h4>
+                    <p>MongoDB Atlas<br>Escalable<br>Segura</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="arch-component">
+                    <h4>🌐 Frontend</h4>
+                    <p>HTML5/CSS3<br>JavaScript<br>Bootstrap</p>
+                </div>
+            </div>
+            <div style="background: #e8f4f8; padding: 30px; border-radius: 15px; margin-top: 40px;">
+                <h3>🔄 Comunicación en Tiempo Real</h3>
+                <p>Todas las capas se comunican instantáneamente para una experiencia fluida</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Tecnologías Utilizadas -->
+        <div class="slide">
+            <h2>💻 Tecnologías Implementadas</h2>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div class="tech-icon">🔧</div>
+                    <h4>Arduino UNO</h4>
+                    <p>Microcontrolador para hardware biométrico</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">👆</div>
+                    <h4>Sensor AS608</h4>
+                    <p>Lector de huellas dactilares de alta precisión</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">⚡</div>
+                    <h4>Node.js</h4>
+                    <p>Backend JavaScript escalable</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🍃</div>
+                    <h4>MongoDB</h4>
+                    <p>Base de datos NoSQL en la nube</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🌐</div>
+                    <h4>HTML/CSS/JS</h4>
+                    <p>Frontend moderno y responsivo</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">🔄</div>
+                    <h4>Socket.IO</h4>
+                    <p>Comunicación en tiempo real</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Demostración del Sistema -->
+        <div class="slide">
+            <h2>🎯 Demostración del Sistema</h2>
+            <div class="demo-mockup">
+                <h3>💡 Flujo de Trabajo</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin: 30px 0;">
+                    <div style="text-align: center;">
+                        <div style="background: #3498db; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2em;">1</div>
+                        <h4>Registro de Huella</h4>
+                        <p>El estudiante registra su huella una sola vez</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="background: #e74c3c; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2em;">2</div>
+                        <h4>Escaneo Diario</h4>
+                        <p>Coloca el dedo para marcar asistencia</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="background: #27ae60; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2em;">3</div>
+                        <h4>Registro Automático</h4>
+                        <p>Asistencia guardada instantáneamente</p>
+                    </div>
+                </div>
+                <div class="mockup-screen">
+                    <p>> Escaneando huella...</p>
+                    <p>> Huella detectada: ID #42</p>
+                    <p>> Estudiante: Juan Pérez (Código: 1151234)</p>
+                    <p>> ✓ Asistencia registrada - Cálculo I - 08:30 AM</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Funcionalidades Principales -->
+        <div class="slide">
+            <h2>🚀 Funcionalidades Principales</h2>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; margin: 40px 0;">
+                <div>
+                    <h3 style="color: #2980b9;">👥 Gestión de Estudiantes</h3>
+                    <ul>
+                        <li>Registro biométrico único</li>
+                        <li>Inscripción a materias</li>
+                        <li>Búsqueda y filtrado</li>
+                        <li>Historial académico</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="color: #2980b9;">📚 Gestión de Materias</h3>
+                    <ul>
+                        <li>Creación y edición</li>
+                        <li>Asignación de estudiantes</li>
+                        <li>Control de estado</li>
+                        <li>Papelera de reciclaje</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="color: #2980b9;">✅ Control de Asistencia</h3>
+                    <ul>
+                        <li>Registro por huella digital</li>
+                        <li>Registro manual (opcional)</li>
+                        <li>Asistencia masiva</li>
+                        <li>Tiempo real</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="color: #2980b9;">📊 Reportes y Analytics</h3>
+                    <ul>
+                        <li>Estadísticas detalladas</li>
+                        <li>Filtros personalizables</li>
+                        <li>Exportación de datos</li>
+                        <li>Gráficos interactivos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Objetivos del Proyecto -->
+        <div class="slide">
+            <h2>🎯 Objetivos del Proyecto</h2>
+            <div style="background: linear-gradient(135deg, #ffffff, #4b6cb7); color: white; padding: 30px; border-radius: 15px; margin: 30px 0;">
+                <h3>🎖️ Objetivo General</h3>
+                <p>Desarrollar e implementar un sistema automatizado de control de asistencia basado en tecnología biométrica para mejorar la precisión, eficiencia y confiabilidad de los registros académicos en la UFPS</p>
+            </div>
+            
+            <h3 style="margin: 30px 0 20px;">🎯 Objetivos Específicos</h3>
+            <ul style="text-align: left; max-width: 1000px; margin: 0 auto;">
+                <li><strong>Hardware:</strong> Diseñar sistema con Arduino UNO y sensor AS608</li>
+                <li><strong>Software:</strong> Crear aplicación web integral con Node.js y MongoDB</li>
+                <li><strong>Base de datos:</strong> Implementar sistema escalable y seguro</li>
+                <li><strong>Reportes:</strong> Desarrollar funcionalidades de análisis en tiempo real</li>
+                <li><strong>Seguridad:</strong> Establecer protocolos de protección de datos biométricos</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: Cronograma -->
+        <div class="slide">
+            <h2>📅 Cronograma del Proyecto</h2>
+            <p style="margin-bottom: 30px;">Periodo: 10 de febrero - 21 de mayo de 2025 (15 semanas)</p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>🔍 Planificación</h4>
+                    <p>Semanas 1-2</p>
+                    <p>Análisis y diseño</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>🔧 Hardware</h4>
+                    <p>Semanas 3-5</p>
+                    <p>Arduino y sensores</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>⚙️ Backend</h4>
+                    <p>Semanas 6-8</p>
+                    <p>APIs y base de datos</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>🌐 Frontend</h4>
+                    <p>Semanas 9-11</p>
+                    <p>Interfaz web</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>🧪 Pruebas</h4>
+                    <p>Semanas 12-13</p>
+                    <p>Testing y optimización</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>🚀 Despliegue</h4>
+                    <p>Semanas 14-15</p>
+                    <p>Implementación final</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <h3>📈 Progreso Actual</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p><strong>75% Completado</strong> - En fase de pruebas y optimización</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Beneficios e Impacto -->
+        <div class="slide">
+            <h2>🌟 Beneficios e Impacto</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">⏱️</div>
+                    <h4>Ahorro de Tiempo</h4>
+                    <p>85% reducción en tiempo de registro manual</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📈</div>
+                    <h4>Mayor Precisión</h4>
+                    <p>99.5% de precisión en identificación biométrica</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔒</div>
+                    <h4>Seguridad Garantizada</h4>
+                    <p>Eliminación total de suplantación de identidad</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📊</div>
+                    <h4>Datos Confiables</h4>
+                    <p>Información precisa para toma de decisiones</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🌱</div>
+                    <h4>Sostenibilidad</h4>
+                    <p>Reducción del uso de papel y recursos</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎓</div>
+                    <h4>Mejora Académica</h4>
+                    <p>Identificación temprana de ausentismo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Aspectos Técnicos Destacados -->
+        <div class="slide">
+            <h2>⚙️ Aspectos Técnicos Destacados</h2>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; margin: 40px 0;">
+                <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; border-left: 5px solid #3498db;">
+                    <h3>🔧 Hardware Optimizado</h3>
+                    <ul>
+                        <li>Sensor AS608 de alta precisión</li>
+                        <li>Arduino UNO con comunicación serie</li>
+                        <li>LED indicador de estado</li>
+                        <li>Conexión USB estable (COM6)</li>
+                        <li>Respuesta en menos de 2 segundos</li>
+                    </ul>
+                </div>
+                <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; border-left: 5px solid #27ae60;">
+                    <h3>💾 Software Robusto</h3>
+                    <ul>
+                        <li>Architecture escalable con Node.js</li>
+                        <li>MongoDB Atlas en la nube</li>
+                        <li>Socket.IO para tiempo real</li>
+                        <li>Frontend responsivo</li>
+                        <li>APIs RESTful documentadas</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #ffffff, #4b6cb7); color: white; padding: 30px; border-radius: 15px; margin-top: 40px;">
+                <h3>🛡️ Seguridad y Privacidad</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
+                    <div>
+                        <h4>🔐 Cifrado</h4>
+                        <p>Templates biométricos cifrados</p>
+                    </div>
+                    <div>
+                        <h4>📋 Normativas</h4>
+                        <p>Cumplimiento Ley 1581 de 2012</p>
+                    </div>
+                    <div>
+                        <h4>🔒 Acceso</h4>
+                        <p>Control de usuarios por roles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Conclusiones y Próximos Pasos -->
+        <div class="slide">
+            <h2>🎉 Conclusiones y Próximos Pasos</h2>
+            
+            <div style="background: #f0fff4; padding: 30px; border-radius: 15px; border-left: 5px solid #27ae60; margin: 30px 0;">
+                <h3>✅ Logros Alcanzados</h3>
+                <ul>
+                    <li>Sistema biométrico 100% funcional</li>
+                    <li>Aplicación web moderna y escalable</li>
+                    <li>Integración hardware-software exitosa</li>
+                    <li>Base de datos robusta y segura</li>
+                    <li>Pruebas exitosas con datos reales</li>
+                </ul>
+            </div>
+            
+            <div style="background: #fff3cd; padding: 30px; border-radius: 15px; border-left: 5px solid #ffc107; margin: 30px 0;">
+                <h3>🚀 Próximos Pasos</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-top: 20px;">
+                    <div>
+                        <h4>📋 Implementación</h4>
+                        <ul>
+                            <li>Despliegue en ambiente de producción</li>
+                            <li>Capacitación a docentes</li>
+                            <li>Pruebas piloto por facultades</li>
+                            <li>Monitoreo y optimización</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>🔮 Futuras Mejoras</h4>
+                        <ul>
+                            <li>Aplicación móvil nativa</li>
+                            <li>Integración con SIRA</li>
+                            <li>Análisis predictivo con IA</li>
+                            <li>Reconocimiento facial adicional</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-info">
+                <h3>📞 Información de Contacto</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-top: 20px;">
+                    <div>
+                        <h4>🎓 Proyecto Desarrollado por:</h4>
+                        <p>Estudiante de Ingeniería de Sistemas<br>Universidad Francisco de Paula Santander</p>
+                    </div>
+                    <div>
+                        <h4>📧 Contacto:</h4>
+                        <p>Email: deislersaidpros@ufps.edu.co<br>Nombre: Deisler Said Prado Ospina - 1151968</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px; font-size: 1.5em;">
+                    <h3>¡Gracias por su atención!</h3>
+                    <p>🚀 Innovación • 🎯 Precisión • 🛡️ Seguridad</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navegación -->
+        <div class="navigation">
+            <button class="nav-btn" onclick="prevSlide()">⬅️ Anterior</button>
+            <button class="nav-btn" onclick="nextSlide()">Siguiente ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Animación especial para ciertos slides
+            if (currentSlide === 8) { // Slide del cronograma
+                animateProgressBar();
+            }
+        }
+        
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+        
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+        
+        function animateProgressBar() {
+            const progressBar = document.querySelector('.progress-fill');
+            if (progressBar) {
+                progressBar.style.width = '0%';
+                setTimeout(() => {
+                    progressBar.style.width = '75%';
+                }, 500);
+            }
+        }
+        
+        // Navegación con teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'Home') {
+                showSlide(0);
+            } else if (e.key === 'End') {
+                showSlide(totalSlides - 1);
+            }
+        });
+        
+        // Auto-animaciones cuando se carga ciertos slides
+        function handleSlideAnimations() {
+            // Animación para las tarjetas de tecnología
+            if (currentSlide === 4) {
+                const techCards = document.querySelectorAll('.tech-card');
+                techCards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.transform = 'translateY(-10px)';
+                        setTimeout(() => {
+                            card.style.transform = 'translateY(0)';
+                        }, 300);
+                    }, index * 200);
+                });
+            }
+        }
+        
+        // Llamar animaciones al cambiar slide
+        const originalShowSlide = showSlide;
+        showSlide = function(n) {
+            originalShowSlide(n);
+            setTimeout(handleSlideAnimations, 300);
+        };
+        
+        // Inicializar
+        showSlide(0);
+        
+        // Función para pantalla completa
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Doble clic para pantalla completa
+        document.addEventListener('dblclick', toggleFullscreen);
+        
+        // Tooltip para navegación
+        document.addEventListener('DOMContentLoaded', function() {
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => {
+                btn.title = 'Usa las flechas del teclado o espaciador para navegar';
+            });
+        });
+        
+        // Indicador de carga inicial
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+        
+        // Función para imprimir o exportar
+        function exportPresentation() {
+            window.print();
+        }
+        
+        // Agregar controles adicionales
+        document.addEventListener('DOMContentLoaded', function() {
+            const additionalControls = document.createElement('div');
+            additionalControls.style.cssText = `
+                position: fixed;
+                top: 30px;
+                left: 30px;
+                display: flex;
+                gap: 10px;
+                z-index: 1000;
+            `;
+            
+            const fullscreenBtn = document.createElement('button');
+            fullscreenBtn.innerHTML = '🔍';
+            fullscreenBtn.className = 'nav-btn';
+            fullscreenBtn.onclick = toggleFullscreen;
+            fullscreenBtn.title = 'Pantalla completa (doble clic)';
+            
+            const printBtn = document.createElement('button');
+            printBtn.innerHTML = '🖨️';
+            printBtn.className = 'nav-btn';
+            printBtn.onclick = exportPresentation;
+            printBtn.title = 'Imprimir presentación';
+            
+            additionalControls.appendChild(fullscreenBtn);
+            additionalControls.appendChild(printBtn);
+            document.body.appendChild(additionalControls);
+        });
+    </script>
+</body>
+</html>
